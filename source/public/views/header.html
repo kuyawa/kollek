@@ -1,0 +1,15 @@
+	<header>
+		<div class="topbar wrap">
+			<div class="topleft">
+				<a href="/"><img class="main-logo" src="/media/logo-dark.png"></a>
+			</div>
+			<div class="topright">
+				<span class="<%=config.usertoken?'':'hidden'%>">
+					<a href="/myevents">My Events</a>
+					<a href="/mytickets">My Tickets</a>
+				</span>
+				<a id="connect" href="/login">Connect</a>
+				<a class="menu-link" noref onclick="javascript:changeTheme()"><img class="icon-theme" src="/media/theme-dark.png" width="28px"></a>
+			</div>
+		</div>
+	</header>

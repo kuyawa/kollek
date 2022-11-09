@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>KOLLEK</title>
+	<link rel="stylesheet" type="text/css" href="/styles/common.css">
+</head>
+<body class="dark-mode">
+    <%- include('header.html'); %>
+	<content class="wrap">
+		<div class="new-event">
+			<% if(event) { %>
+			<h1 class="bigtitle">EVENT <%=event.eventid%></h1>
+		    <div class="ticket">
+		    	<div class="artwork">
+					<img id="artwork-image" class="artwork-image" src="/artwork/<%=event.image%>">
+				</div>
+		    	<div class="entry">
+			    	<label id="label-name"><%=event.name%></label>
+			    	<label id="label-info"><%=event.info%></label>
+			    	<label id="label-desc"><%-utils.parseText(event.description)%></label>
+			    	<label id="label-date"><%=utils.dateLong(event.startdate)%></label>
+			    	<label id="label-site"><%=event.location||'Virtual event'%></label>
+		    	</div>
+		    </div>
+		    <div class="actions">
+		    	<button id="verify" class="action-button" onclick="onVerify('<%=event.eventid%>')">VERIFY</button>
+		    </div>
+		    <div id="message">Scan a qr-code to verify your attendance</div>
+			<% } else { %>
+			<h1 class="bigtitle">EVENT NOT FOUND</h1>
+		    <div class="ticket">
+		    	<div class="artwork">
+					<img id="artwork-image" class="artwork-image" src="/artwork/noevent.jpg">
+					<!-- <input type="file" name="artwork-file" id="artwork-file" class="input-file"> -->
+				</div>
+		    	<div class="entry">
+			    	<input disabled type="text" name="event-name" id="event-name" placeholder="Event name e.g. &quot;Halloween Party&quot;">
+			    	<input disabled type="text" name="event-info" id="event-info" placeholder="Event info e.g. &quot;Spookiest party in town&quot;"">
+			    	<textarea disabled name="description" id="description" placeholder="Event description..."></textarea>
+			    	<li><label>Date:</label> <input disabled type="datetime-local" name="event-date"  id="event-date"  placeholder="Event date"></li>
+			    	<input disabled type="text" name="location" id="location" placeholder="Location">
+		    	</div>
+		    </div>
+			<% } %>
+		    <div class="list">
+		    	<!-- list of ticekts claimed/verified -->
+		    	<table id="tickets">
+		    		<thead>
+		    			<tr><th>Minted</th> <th>Ticket ID</th> <th>Account</th> <th>Verified</th></tr>
+		    		</thead>
+		    		<tbody>
+					<% if(tickets.length>0) { %>
+						<% tickets.forEach(function(item){ %>
+		    			<tr><td><%=item.created.toLocaleString()%></td><td><%=item.ticketid.substr(40)%></td><td><%=item.account.substr(0,10)%>&hellip;</td><td><%=item.verified?.toLocaleString()||'-'%></td></tr>
+		    			<% }) %>
+		    		<% } else { %>
+		    			<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+		    		<% } %>
+		    		</tbody>
+		    		<tfoot>
+		    			<tr><th colspan="4"><label>Attendance: <span id="attendance"><%=event.quantity%></span></label> <label>Minted: <span id="total-minted"><%=event.claimed%></span></label> <label>Verified: <span id="total-verified"><%=event.verified%></span></label></th></tr>
+		    		</tfoot>
+		    	</table>
+	    	</div>
+		</div>
+	</content>
+    <%- include('footer.html'); %>
+	<script>let config = <%-JSON.stringify(config)%></script>
+	<script src="/scripts/xumm-pkce.js"></script>
+	<script src="/scripts/xumm-sdk-jwt.js"></script>
+	<script>let {XummSdkJwt, XummSdk} = require('xumm-sdk')</script>
+	<script src="/scripts/events.js"></script>
+	<script src="/scripts/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>KOLLEK</title>
+	<link rel="stylesheet" type="text/css" href="/styles/common.css">
+</head>
+<body class="dark-mode">
+    <%- include('header.html'); %>
+	<content class="wrap">
+		<div class="new-event">
+			<h1 class="bigtitle">REGISTER YOUR EVENT</h1>
+		    <div class="ticket">
+		    	<div class="artwork">
+					<img id="artwork-image" class="artwork-image" src="/artwork/noevent.jpg" onerror="this.src='/artwork/noevent.jpg'">
+					<input type="file" name="artwork-file" id="artwork-file" class="input-file" onchange="onPreviewFile(this)">
+				</div>
+		    	<div class="entry">
+			    	<input type="text" name="event-name" id="event-name" placeholder="Event name e.g. &quot;Halloween Party&quot;">
+			    	<input type="text" name="event-info" id="event-info" placeholder="Event info e.g. &quot;Spookiest party in town&quot;"">
+			    	<textarea name="description" id="description" placeholder="Event description..."></textarea>
+			    	<li><label class="under">Date:</label> <input type="datetime-local" name="event-date"  id="event-date"  placeholder="Event date"></li>
+			    	<input type="text" name="location" id="location" placeholder="Location">
+		    	</div>
+		    </div>
+		    <div class="form">
+	    		<li>
+		    		<label class="field bold">Enter all the information solicited in the form above. If you don't enter a location, it's considered a virtual event. Artwork must be 500x500 pixels in jpg or png format only</label>
+		    	</li>
+	    		<li>
+		    		<label class="field">If it's a multi-day event, enter the end date <i>(optional)</i></label>
+	    		 	<input type="datetime-local" name="end-date" id="end-date">
+	    		</li>
+	    		<li>
+					<label class="field">Use this field if tickets can't be minted after a certain date <i>(optional)</i></label>
+	    		 	<input type="datetime-local" name="expiration" id="expiration">
+	    		</li>
+	    		<li>
+					<label class="field">Enter a website people should visit for more info <i>(optional)</i></label>
+	    		 	<input type="text" name="website" id="website" placeholder="https://example.com/event/halloween" >
+	    		</li>
+	    		<li>
+					<label class="field">Quantity of tickets you need to mint:</label>
+	    		 	<input type="text" name="quantity" id="quantity" value="1000" onkeyup="onCost()">
+	    		 	<!-- <input type="checkbox" name="covered" id="covered"> <small class="fees">Mark if you want to cover all the costs</small> -->
+	    		</li>
+	    		<li>
+		    		<input type="checkbox" name="private" id="private"> Mark as private if you don't want to appear in listings or if you are testing the platform
+	    		</li>
+				<li class="center"><button id="save" class="action-button" onclick="onSave()">SAVE</a></li>
+				<li class="center">
+					<div id="message">You will pay for the cost of minting, claiming and verifying every ticket</div>
+					<div id="totalcost">TOTAL COST 1 XRP</div>
+				</li>
+<!-- 
+	    		<hr class="dash">
+	    		<div class="special">
+	    			<h1>Special Event</h1>
+	    			<h3>If you want your event to be featured at the top of the page, upload a rectangled banner 3:1 with a minimum of 750x250 pixels</h3>
+		    		<p class="offer">At an extra cost of 10 XRP you can highlight your event to increase your audience</p>
+	    		</div>
+ -->
+	    	</div>
+		</div>
+	</content>
+    <%- include('footer.html'); %>
+	<script>let config = <%-JSON.stringify(config)%></script>
+	<script src="/scripts/xumm-pkce.js"></script>
+	<script src="/scripts/xumm-sdk-jwt.js"></script>
+	<script>let {XummSdkJwt, XummSdk} = require('xumm-sdk')</script>
+	<script src="/scripts/events.js"></script>
+	<script src="/scripts/common.js"></script>
+</body>
+</html>
