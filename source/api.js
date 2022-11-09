@@ -18,14 +18,10 @@ function parseMemo(obj){
         if(!obj[key]){ continue; }
         let typ = xrpl.convertStringToHex(key)
         let dat = xrpl.convertStringToHex(obj[key].toString())
-        //console.warn(key, obj[key].toString())
-        //console.warn(typ, dat)
         if(dat){
             res.push({Memo:{MemoType:typ, MemoData:dat}})
         }
     }
-    //console.warn('---')
-    //console.warn(res)
     return res;
 }
 
@@ -119,19 +115,6 @@ async function claimNFT(uri, eventid, account, usertoken) {
     let trxFee = '12'  // drops per tx
     let xfrFee = 10000 // 10% on sales for issuer
     let xUri   = xrpl.convertStringToHex(uri)
-//  let tx = {
-//      user_token: usertoken,
-//      txjson:{
-//          TransactionType: 'NFTokenMint',
-//          //Account:         wallet.classicAddress,
-//          Account:         account,
-//          URI:             xUri,
-//          Flags:           flags,
-//          Fee:             trxFee,
-//          TransferFee:     xfrFee,
-//          NFTokenTaxon:    parseInt(eventid)
-//      }
-//  }
     let tx = {
         TransactionType: 'NFTokenMint',
         //Account:         wallet.classicAddress,
@@ -148,7 +131,6 @@ async function claimNFT(uri, eventid, account, usertoken) {
     let tokenId = null;
     try {
         let info = await client.submitAndWait(tx,{wallet})
-        //let info = await client.submitAndWait(tx)
         //console.warn(JSON.stringify(info, null, 4))
         console.warn('Result:', info.result.meta.TransactionResult)
         if(info.result.meta.TransactionResult=='tesSUCCESS'){
@@ -167,6 +149,11 @@ async function claimNFT(uri, eventid, account, usertoken) {
     return {success:true,tokenId:tokenId}
 }
 
-module.exports = { getTransaction, getTokenId, mintNFT, claimNFT }
+module.exports = { 
+    getTransaction, 
+    getTokenId, 
+    mintNFT, 
+    claimNFT 
+}
 
 // END
