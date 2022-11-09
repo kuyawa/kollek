@@ -51,9 +51,9 @@ async function register(req, res){
     config.account   = req.cookies.account;
     config.usertoken = req.cookies.usertoken;
     if(!config.usertoken){
-    	config.redirect = '/register';
-    	res.redirect('/login');
-    	return;
+        config.redirect = '/register';
+        res.redirect('/login');
+        return;
     }
     res.render('event.html', {config});
 }
@@ -105,9 +105,9 @@ async function mint(req, res){
     config.usertoken = req.cookies.usertoken;
     config.eventid   = req.params.id;
     if(!config.usertoken){
-    	config.redirect = '/mint/'+config.eventid;
-    	res.redirect('/login');
-    	return;
+        config.redirect = '/mint/'+config.eventid;
+        res.redirect('/login');
+        return;
     }
     res.render('mint.html', {config});
 }
@@ -159,19 +159,19 @@ async function apiNewUser(req, res){
     hit(req);
     let data = req.body;
     if(!data.account){
-    	console.warn('No account');
+        console.warn('No account');
         return res.end(JSON.stringify({success:false, error:'User not found'}));
     }
     // Check if user exists, if not, save to db
-	let user = await db.getAccountById(data.account);
-	//console.warn('User?', user);
-	if(!user){
-		console.warn('New');
-		let ok = await db.newAccount(data);
-	} else { 
-		console.warn('Renew');
-		let ok = await db.renewToken(data);
-	}
+    let user = await db.getAccountById(data.account);
+    //console.warn('User?', user);
+    if(!user){
+        console.warn('New');
+        let ok = await db.newAccount(data);
+    } else { 
+        console.warn('Renew');
+        let ok = await db.renewToken(data);
+    }
     res.end(JSON.stringify({success:true}));
 }
 
@@ -181,7 +181,7 @@ async function apiUser(req, res){
     if(!account){ return res.end(JSON.stringify({error:'User id required'})) }
     let info = await db.getAccountById(account)
     if(!info){ return res.end(JSON.stringify({error:'User not found'})) }
-	res.end(JSON.stringify(info))
+    res.end(JSON.stringify(info))
 }
 
 async function apiUpload(req, res){
@@ -189,7 +189,7 @@ async function apiUpload(req, res){
     let data = req.body;
     console.warn('Data', data);
     if(!req.files || !req.files.file || !req.files.file.name) { 
-    	return res.status(500).send(JSON.stringify({error:'No files uploaded'})); 
+        return res.status(500).send(JSON.stringify({error:'No files uploaded'})); 
     }
     let artwork = req.files.file;
     console.warn('File', artwork);
@@ -197,7 +197,7 @@ async function apiUpload(req, res){
     console.warn('Mime type:', artwork.mimetype)
     let validMime = ['image/jpg', 'image/jpeg', 'image/png'];
     if(validMime.indexOf(artwork.mimetype)<0){
-    	return res.status(500).send(JSON.stringify({error:'Invalid image type, only jpg or png allowed'})); 
+        return res.status(500).send(JSON.stringify({error:'Invalid image type, only jpg or png allowed'})); 
     }
     try {
         // Upload artwork
@@ -230,14 +230,14 @@ async function apiEvent(req, res){
     try {
         let inf = db.newEvent(event);
         if(inf.error){
-    		res.status(500).send(JSON.stringify({error:inf.error}));
+            res.status(500).send(JSON.stringify({error:inf.error}));
         } else {
-        	res.send(JSON.stringify({success:true}));
+            res.send(JSON.stringify({success:true}));
         }
     } catch(ex) {
-    	console.error('Error saving event')
-    	console.error(ex)
-    	res.status(500).send(JSON.stringify({error:ex.message}));
+        console.error('Error saving event')
+        console.error(ex)
+        res.status(500).send(JSON.stringify({error:ex.message}));
     }
 }
 
@@ -245,21 +245,21 @@ async function apiToken(req, res){
     hit(req);
     let tx = await api.getTransaction(req.params.tx)
     if(!tx){
-    	return res.end(JSON.stringify({error:'Error getting token id'}));
+        return res.end(JSON.stringify({error:'Error getting token id'}));
     }
     let tid = await api.getTokenId(tx, req.params.uri)
     if(!tid){
-    	return res.end(JSON.stringify({error:'Token id not found'}));
+        return res.end(JSON.stringify({error:'Token id not found'}));
     }
     console.warn('TokenId:', tid)
     res.end(JSON.stringify({success:true, tokenid:tid}));
 }
 
 async function apiTicket(req, res){
-	hit(req)
-	console.warn('Saving ticket', req.body)
-	let info = await db.newTicket(req.body)
-	console.warn('Saved', info)
+    hit(req)
+    console.warn('Saving ticket', req.body)
+    let info = await db.newTicket(req.body)
+    console.warn('Saved', info)
     res.end(JSON.stringify({success:true, result:info}));
 }
 
@@ -293,27 +293,27 @@ async function apiClaim(req, res){
     let account   = req.cookies.account;
     let usertoken = req.cookies.usertoken;
     let eventid   = req.params.id;
-   	let redirect = '/claim/'+eventid;
+    let redirect = '/claim/'+eventid;
     if(!usertoken){
-    	return res.status(500).send(JSON.stringify({error:'Please login with your wallet first', code:902, redirect:redirect}));
+        return res.status(500).send(JSON.stringify({error:'Please login with your wallet first', code:902, redirect:redirect}));
     }
     let user = await db.getAccountById(account)
     let exp = new Date(user.expires)
     let now = new Date()
     if(exp<now){
-    	return res.status(500).send(JSON.stringify({error:'Session expired, please login with your wallet first', code:904, redirect:redirect}));
+        return res.status(500).send(JSON.stringify({error:'Session expired, please login with your wallet first', code:904, redirect:redirect}));
     }
     let event = await db.getEventById(eventid)
     if(event.error){
-    	return res.status(500).send(JSON.stringify({error:'Error loading event, try again later', code:906}));
+        return res.status(500).send(JSON.stringify({error:'Error loading event, try again later', code:906}));
     }
     let uri = event.artwork
     let inf = await api.claimNFT(uri, eventid, account, usertoken)
     console.warn(inf)
     if(inf.error){
-    	return res.status(500).send(JSON.stringify({error:'Error claiming token, try again in a moment', code:908, redirect:redirect}));
+        return res.status(500).send(JSON.stringify({error:'Error claiming token, try again in a moment', code:908, redirect:redirect}));
     }
-   	res.send(JSON.stringify({success:true, tokenId:inf.tokenId}));
+    res.send(JSON.stringify({success:true, tokenId:inf.tokenId}));
 }
 */
 
@@ -366,29 +366,29 @@ async function notfound(req, res){
 
 
 module.exports = {
-	index,
-	login,
-	register,
-	list,
-	event,
+    index,
+    login,
+    register,
+    list,
+    event,
     myEvents,
     myTickets,
-	mint,
-	verify,
-	terms,
-	privacy,
-	faq,
-	apiTest,
-	apiUser,
-	apiNewUser,
-	apiUpload,
+    mint,
+    verify,
+    terms,
+    privacy,
+    faq,
+    apiTest,
+    apiUser,
+    apiNewUser,
+    apiUpload,
     apiEvent,
-	apiToken,
-	apiTicket,
-	apiVerify,
+    apiToken,
+    apiTicket,
+    apiVerify,
     apiWebhook,
-	apiNotfound,
-	logs,
-	logx,
-	notfound
+    apiNotfound,
+    logs,
+    logx,
+    notfound
 }

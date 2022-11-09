@@ -13,11 +13,11 @@ function dateLong(date) {
 }
 
 function parseText(txt) {
-	txt = txt.replace('\n','<br>');
-	return txt;
+    txt = txt.replace('\n','<br>');
+    return txt;
 }
 
 module.exports = {
-	dateLong,
-	parseText
+    dateLong,
+    parseText
 }

@@ -124,7 +124,7 @@ class DataServer {
 const DS = new DataServer();
 
 async function newAccount(rec) {
-	let sql = 'insert into accounts(userid, token, expires, jwtoken)  values($1, $2, $3, $4) returning recid';
+    let sql = 'insert into accounts(userid, token, expires, jwtoken)  values($1, $2, $3, $4) returning recid';
     let par = [rec.account, rec.usertoken, rec.expires, rec.jwtoken];
     let dat = await DS.insert(sql, par, 'recid');
     return dat;
@@ -145,7 +145,7 @@ async function renewToken(rec) {
 }
 
 async function newEvent(rec) {
-	let sql1 = 'insert into events(eventid, account, artwork, image, tokenid, name, info, description, startdate, enddate, expiry, isvirtual, location, website, quantity, private, cost)  values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) returning recid';
+    let sql1 = 'insert into events(eventid, account, artwork, image, tokenid, name, info, description, startdate, enddate, expiry, isvirtual, location, website, quantity, private, cost)  values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) returning recid';
     let par1 = [rec.eventid, rec.account, rec.artwork, rec.image, rec.tokenid, rec.name, rec.info, rec.description, rec.startdate, rec.enddate, rec.expiry, rec.isvirtual, rec.location, rec.website, rec.quantity, rec.private, rec.cost];
     let dat1 = await DS.insert(sql1, par1, 'recid');
     let sql2 = 'update accounts set events = events + 1 where userid = $1';
@@ -262,8 +262,8 @@ async function verifyTickets(account, eventId) {
 
 
 module.exports = {
-	newAccount,
-	getAccountById,
+    newAccount,
+    getAccountById,
     renewToken,
     newEvent,
     getEventById,
