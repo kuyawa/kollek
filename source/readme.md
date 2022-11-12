@@ -73,9 +73,9 @@ CREATE TABLE IF NOT EXISTS public.events (
 CREATE TABLE IF NOT EXISTS public.tickets (
     recid       bigint NOT NULL DEFAULT nextval('tickets_recid_seq'::regclass),
     created     timestamp with time zone DEFAULT now(),
-    account     character varying(64) COLLATE pg_catalog."default",
-    eventid     character varying(10) COLLATE pg_catalog."default",
-    ticketid    character varying(64) COLLATE pg_catalog."default",
+    account     character varying(64),
+    eventid     character varying(10),
+    ticketid    character varying(64),
     verified    timestamp with time zone,
     CONSTRAINT  tickets_pkey PRIMARY KEY (recid)
 )
