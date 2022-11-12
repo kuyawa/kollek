@@ -20,7 +20,7 @@ The entry point is index.js that starts the server app loading the router and li
 ### Table: accounts
 
 ```sql
-CREATE TABLE IF NOT EXISTS public.accounts (
+CREATE TABLE IF NOT EXISTS accounts (
     recid       bigint NOT NULL DEFAULT nextval('accounts_recid_seq'::regclass),
     created     timestamp with time zone DEFAULT now(),
     userid      character varying(42),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.accounts (
 ### Table: events
 
 ```sql
-CREATE TABLE IF NOT EXISTS public.events (
+CREATE TABLE IF NOT EXISTS events (
     recid       bigint NOT NULL DEFAULT nextval('events_recid_seq'::regclass),
     created     timestamp with time zone DEFAULT now(),
     eventid     character varying(10),
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS public.events (
 ### Table: tickets
 
 ```sql
-CREATE TABLE IF NOT EXISTS public.tickets (
+CREATE TABLE IF NOT EXISTS tickets (
     recid       bigint NOT NULL DEFAULT nextval('tickets_recid_seq'::regclass),
     created     timestamp with time zone DEFAULT now(),
     account     character varying(64),
