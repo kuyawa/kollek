@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS accounts (
     created     timestamp with time zone DEFAULT now(),
     userid      character varying(42),
     token       character varying(255),
+    jwtoken     text,
     expires     timestamp with time zone DEFAULT now(),
     events      integer DEFAULT 0,
     tickets     integer DEFAULT 0,
-    jwtoken     text,
     inactive    boolean DEFAULT false,
     CONSTRAINT  accounts_pkey PRIMARY KEY (recid)
 )
@@ -40,9 +40,11 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS events (
     recid       bigint NOT NULL DEFAULT nextval('events_recid_seq'::regclass),
     created     timestamp with time zone DEFAULT now(),
+    account     character varying(42),
     eventid     character varying(10),
     tokenid     character varying(64),
     name        character varying(100),
+    info        character varying(100),
     description text,
     startdate   timestamp with time zone,
     enddate     timestamp with time zone,
@@ -56,13 +58,10 @@ CREATE TABLE IF NOT EXISTS events (
     cost        integer DEFAULT 0,
     claimed     integer DEFAULT 0,
     verified    integer DEFAULT 0,
-    metadata    character varying(254),
-    info        character varying(100),
-    account     character varying(42),
-    inactive    boolean DEFAULT false,
     image       character varying(20),
     bigimage    character varying(20),
     special     boolean DEFAULT false,
+    inactive    boolean DEFAULT false,
     CONSTRAINT  events_pkey PRIMARY KEY (recid)
 )
 ```
