@@ -15,7 +15,6 @@ async function main(){
     const app = express();
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(uploader());
-    //app.use(express.json()) // Instead of bodyParser since express 4.16
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(cookies());
@@ -32,12 +31,10 @@ async function main(){
     app.get('/myevents', router.myEvents)
     app.get('/mytickets', router.myTickets)
     app.get('/event/:id', router.event)
-    app.get('/mint/:id', router.mint)
     app.get('/verify/:id', router.verify)
     app.get('/terms', router.terms)
     app.get('/privacy', router.privacy)
     app.get('/faq', router.faq)
-    app.get('/api/test', router.apiTest)
     app.get('/api/user', router.apiUser)
     app.post('/api/user', router.apiNewUser)
     app.post('/api/upload', router.apiUpload)

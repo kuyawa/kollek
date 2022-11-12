@@ -1,4 +1,5 @@
 // Common.js
+
 let session = {
     appkey   : '0c461d0b-22ac-4dc0-8c41-fe52b9f8761a',
     explorer : 'https://nft-devnet.xrpl.org',
@@ -36,7 +37,6 @@ function setCookie(name, value, days) {
         expires = '; expires=' + date.toUTCString();
     }
     let path = '; path=/';
-    //document.cookie = `${name}=${value}${expires}${path}`;
     document.cookie = name + '=' + (value || '') + expires + '; path=/';
 }
 
@@ -240,46 +240,8 @@ async function main() {
     if(config.account){
         $('connect').innerHTML = config.account.substr(0,8).toUpperCase()
     }
-    //await loadXumm()
     if(window['start']) { start(); }
 }
-
-
-// TEST PKCE.2
-/*
-async function loadXumm(){
-    pkce = new XummPkce(session.appkey)
-    pkce.on('error', (error) => {
-        console.log('Xumm error', error)
-    })
-    pkce.on('success', async () => {
-        console.log('Success: authorized')
-        state = await pkce.state()
-        if(state?.sdk){ xumm = state.sdk }
-        console.log('User:', state?.me?.sub)
-    })
-    pkce.on('retrieved', async () => {
-        console.log('Retrieved: authorized')
-        state = await pkce.state()
-        if(state?.sdk){ xumm = state.sdk }
-        console.log('User:', state?.me?.sub)
-    })
-}
-
-async function authorize(){
-    if(!state){
-        console.log('Not authorized')
-        state = await pkce.authorize()
-    } else {
-        console.log('Reauthorizing')
-        state = await pkce.state()
-    }
-    if(state?.sdk){ xumm = state.sdk }
-    console.log('User:', state?.me?.sub)
-    console.log('XUMM',xumm)
-    return xumm
-}
-*/
 
 window.onload = main;
 

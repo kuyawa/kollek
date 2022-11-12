@@ -6,6 +6,7 @@ if(!dbconn){ console.error('DATASERVER NOT AVAILABLE'); }
 const dbp = new postgres.Pool({ connectionString: dbconn });
 
 
+// Database helper for querying, inserting and updating records
 class DataServer {
     async connect() {}
     async disconnect() {}
@@ -123,13 +124,15 @@ class DataServer {
 
 const DS = new DataServer();
 
+// Stores every account in the server for fast lookup/login
 async function newAccount(rec) {
-    let sql = 'insert into accounts(userid, token, expires, jwtoken)  values($1, $2, $3, $4) returning recid';
+	let sql = 'insert into accounts(userid, token, expires, jwtoken)  values($1, $2, $3, $4) returning recid';
     let par = [rec.account, rec.usertoken, rec.expires, rec.jwtoken];
     let dat = await DS.insert(sql, par, 'recid');
     return dat;
 }
 
+// Returns account info for ser id
 async function getAccountById(userid) {
     let sql = 'select * from accounts where userid=$1';
     let par = [userid];
@@ -137,6 +140,7 @@ async function getAccountById(userid) {
     return dat;
 }
 
+// Renews user token for faster login
 async function renewToken(rec) {
     let sql = 'update accounts set token=$1, expires=$2, jwtoken=$3 where userid=$4';
     let par = [rec.usertoken, rec.expires, rec.jwtoken, rec.account];
@@ -144,8 +148,10 @@ async function renewToken(rec) {
     return dat;
 }
 
+// Registers new event
+// Updates events count in user profile
 async function newEvent(rec) {
-    let sql1 = 'insert into events(eventid, account, artwork, image, tokenid, name, info, description, startdate, enddate, expiry, isvirtual, location, website, quantity, private, cost)  values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) returning recid';
+	let sql1 = 'insert into events(eventid, account, artwork, image, tokenid, name, info, description, startdate, enddate, expiry, isvirtual, location, website, quantity, private, cost)  values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) returning recid';
     let par1 = [rec.eventid, rec.account, rec.artwork, rec.image, rec.tokenid, rec.name, rec.info, rec.description, rec.startdate, rec.enddate, rec.expiry, rec.isvirtual, rec.location, rec.website, rec.quantity, rec.private, rec.cost];
     let dat1 = await DS.insert(sql1, par1, 'recid');
     let sql2 = 'update accounts set events = events + 1 where userid = $1';
@@ -154,6 +160,7 @@ async function newEvent(rec) {
     return {event:dat1, counter:dat2};
 }
 
+// Gets event info by event id
 async function getEventById(eventid) {
     let sql = 'select * from events where eventid=$1';
     let par = [eventid];
@@ -161,6 +168,7 @@ async function getEventById(eventid) {
     return dat;
 }
 
+// Gets latest events order by date and not private
 async function getLatestEvents(cnt=40) {
     let sql = 'select * from events where startdate::date > $1 AND NOT special AND NOT private order by startdate limit $2';
     let now = new Date().toJSON().substr(0,10);
@@ -169,6 +177,7 @@ async function getLatestEvents(cnt=40) {
     return dat;
 }
 
+// Gets special events to show at the top of the page
 async function getSpecialEvents(cnt=10) {
     let sql = 'select * from events where startdate::date > $1 AND special AND NOT private order by startdate limit $2';
     let now = new Date().toJSON().substr(0,10);
@@ -177,6 +186,7 @@ async function getSpecialEvents(cnt=10) {
     return dat;
 }
 
+// Gets list of events I have created
 async function getMyEvents(account, cnt=100) {
     let sql = 'select * from events where account = $1 AND NOT special order by startdate desc limit $2';
     let par = [account, cnt];
@@ -184,6 +194,7 @@ async function getMyEvents(account, cnt=100) {
     return dat;
 }
 
+// Gets list of special events I have created
 async function getMySpecialEvents(account, cnt=100) {
     let sql = 'select * from events where account = $1 AND special order by startdate limit $2';
     let par = [account, cnt];
@@ -191,6 +202,7 @@ async function getMySpecialEvents(account, cnt=100) {
     return dat;
 }
 
+// Gets list of tickets I have minted
 async function getMyTickets(account, cnt=100) {
     let sql = 'select t.created as minted, t.verified, e.* from tickets t left outer join events e on t.eventid = e.eventid where t.account = $1 AND NOT e.special order by e.startdate desc limit $2';
     let par = [account, cnt];
@@ -198,6 +210,7 @@ async function getMyTickets(account, cnt=100) {
     return dat;
 }
 
+// Gets list of tickets for special events I have minted
 async function getMySpecialTickets(account, cnt=100) {
     let sql = 'select t.created as minted, t.verified, e.* from tickets t left outer join events e on t.eventid = e.eventid where t.account = $1 AND e.special order by e.startdate desc limit $2';
     let par = [account, cnt];
@@ -205,6 +218,9 @@ async function getMySpecialTickets(account, cnt=100) {
     return dat;
 }
 
+// Registers new ticket in the database for faster lookup
+// Updates event tickets claimed
+// Updates ticket count in my account
 async function newTicket(rec) {
     let sql1 = 'insert into tickets(account, eventid, ticketid) values($1, $2, $3) returning recid';
     let par1 = [rec.account, rec.eventid, rec.ticketid];
@@ -218,6 +234,7 @@ async function newTicket(rec) {
     return {ticket:dat1, event:dat2, counter:dat3};
 }
 
+// Gets tickets minted for an event
 async function getTicketsByEvent(eventId, cnt=100) {
     let sql = 'select * from tickets where eventid = $1 order by created desc limit $2';
     let par = [eventId, cnt];
@@ -225,6 +242,7 @@ async function getTicketsByEvent(eventId, cnt=100) {
     return dat;
 }
 
+// Gets tickets verified for an event
 async function getTicketsVerified(eventId, cnt=100) {
     let sql = 'select * from tickets where eventid = $1 and verified is not null order by created desc limit $2';
     let par = [eventId, cnt];
@@ -232,6 +250,7 @@ async function getTicketsVerified(eventId, cnt=100) {
     return dat;
 }
 
+// Gets tickets by user (users can have many tickets for one event)
 async function getTicketsByUser(account, eventId) {
     let sql = 'select * from tickets where account=$1 and eventid=$2 order by created';
     let par = [account, eventId];
@@ -239,6 +258,7 @@ async function getTicketsByUser(account, eventId) {
     return dat;
 }
 
+// Gets tickets not verified yet by user
 async function getUnverifiedByUser(account, eventId) {
     let sql = 'select * from tickets where account=$1 and eventid=$2 and verified is null order by created';
     let par = [account, eventId];
@@ -246,11 +266,12 @@ async function getUnverifiedByUser(account, eventId) {
     return dat;
 }
 
+// Verifies tickets and stores state in database
+// Updates event tickets count
 async function verifyTickets(account, eventId) {
     let sql1 = 'update tickets set verified=now() where account=$1 and eventid=$2 and verified is null';
     let par1 = [account, eventId];
     let dat1 = await DS.update(sql1, par1);
-    console.warn('dat1?', dat1);
     let dat2 = null;
     if(dat1>0){
         let sql2 = 'update events set verified = verified + $1 where eventid = $2';
@@ -262,8 +283,8 @@ async function verifyTickets(account, eventId) {
 
 
 module.exports = {
-    newAccount,
-    getAccountById,
+	newAccount,
+	getAccountById,
     renewToken,
     newEvent,
     getEventById,

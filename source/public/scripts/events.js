@@ -31,11 +31,9 @@ function parseMemo(obj){
 function onCost() {
     let tot = 1
     let qty = $('quantity').value
-    //console.log('Qty:', qty)
     if(qty>1000){
         tot = Math.ceil(qty * 0.000012)
     }
-    //console.log('Cost:', tot)
     $('totalcost').innerHTML = `TOTAL COST ${tot} XRP`
 }
 
@@ -183,15 +181,8 @@ async function mintEvent(event, memo) {
         console.log('PAYLOADID', payloadId)
         let qrcode = created?.refs?.qr_png
         console.log('QRCODE', qrcode)
-        //if(qrcode){
-        //  let popup = window.open(qrcode,'qrcode','scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=400,height=400,left=100,top=100')
-        //}
-        //let socket = created?.refs?.websocket_status
-        //console.log('SOCKET', socket)
         if(payloadId){ 
-            // https://gist.github.com/WietseWind/4d844eb3a77bdca59cdb14c3e511d894#file-index-js-L44
-            //console.log('RESOLVE', res.resolved)
-            let outcome = await resolved  // https://www.npmjs.com/package/xumm-sdk -> Sdk.payload.subscribe
+            let outcome = await resolved
             console.log('OUTCOME', outcome)
             console.log('SIGNED', outcome.signed)
             if(outcome.signed){
@@ -261,29 +252,18 @@ async function mintNFT(eventId, eventUri) {
         console.log('PAYLOADID', payloadId)
         let qrcode = created?.refs?.qr_png
         console.log('QRCODE', qrcode)
-        //if(qrcode){
-        //  let popup = window.open(qrcode,'qrcode','scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=400,height=400,left=100,top=100')
-        //}
-        //let socket = created?.refs?.websocket_status
-        //console.log('SOCKET', socket)
         if(payloadId){ 
-            // https://gist.github.com/WietseWind/4d844eb3a77bdca59cdb14c3e511d894#file-index-js-L44
-            //console.log('RESOLVE', res.resolved)
-            let outcome = await resolved  // https://www.npmjs.com/package/xumm-sdk -> Sdk.payload.subscribe
+            let outcome = await resolved
             console.log('OUTCOME', outcome)
             console.log('SIGNED', outcome.signed)
             if(outcome.signed){
                 console.log('TXID', outcome.txid)
                 showMessage('Your ticket has been minted')
-                // get tx in xrpl
-                //let trx = await getTransaction(outcome.txid)
-                //let tokenid = getTokenId(txid, eventUri)
                 res = await fetch(`/api/token/${outcome.txid}/${stringToHex(eventUri)}`)
                 inf = await res.json()
                 console.log('Token', inf)
                 if(inf.error){
                     console.log('Error getting token id', inf.error)
-                    //showMessage('Error minting ticket')
                 } else {
                     let ticketId = inf.tokenid
                     let minted = new Date()
@@ -321,14 +301,11 @@ async function verifyNFT(eventId, eventUri) {
         let auth = await pkce.authorize()
         if(auth?.me){
             showMessage('Verifying, wait a moment...')
-            //let xsdk = auth.sdk
-            //let jwt  = auth.jwt
             let user = auth.me
             console.log('STATE', auth)
             console.log('USER', user)          // user info and wallet address
             let account = user.account         // rippleAddress
             let neturl  = user.networkEndpoint // wss://xls20-sandbox.rippletest.net:51233
-            // user.networkType                // CUSTOM
             console.log(session.neturl)
             if(session.neturl.includes('xls20')){
                 console.log('Connected to NFT-DEVNET')
@@ -337,11 +314,9 @@ async function verifyNFT(eventId, eventUri) {
             }
             let verified = dateToDB(new Date())
             let dat = {account, eventId, verified}
-            console.log(dat)
             let opt = {method:'post', headers: {'content-type': 'application/json'}, body: JSON.stringify(dat)}
             let rec = await fetch('/api/verify', opt)
             let inf = await rec.json()
-            console.log('INF', inf)
             if(inf.error){
                 showMessage(inf.error)
             } else {
@@ -367,7 +342,6 @@ async function verifyNFT(eventId, eventUri) {
 }
 
 
-
 function addTicketToList(account, ticketId, minted, verified){
     // Minted   Ticket ID   Account Verified
     let table = $('tickets')
@@ -391,18 +365,5 @@ async function onVerify(eventId, eventUri) {
     console.log('VERIFIED', res)
     verifyButton('VERIFY')
 }
-
-async function test() {
-    // #1
-    //let xumm = new XummSdkJwt(session.appkey)
-    //let ott = await xumm.getOttData()
-    //console.log('OTT', ott)
-    //return ott
-    // #2
-    //let res = await fetch('https://nft-devnet.xrpl.org/transactions/9CAF659DA9088CA9ABE7F05BFF3354CBFED71E7202ACD1849628807845552DC0')
-    //let txt = await res.text()
-    //console.warn(txt)
-}
-
 
 // END

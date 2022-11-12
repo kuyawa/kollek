@@ -1,4 +1,4 @@
-// Router.js
+// ROUTER
 
 const fs        = require('fs');
 const path      = require('path');
@@ -14,12 +14,13 @@ var config = {
     theme:    'dark-mode'
 }
 
-function hit(req,txt=''){ 
+// Log all hits to different routes
+function hit(req,txt=''){
     console.warn(new Date().toJSON().substr(5,14).replace('T',' '), req.path, txt); 
     //console.warn('MEM', process.memoryUsage());
 }
 
-
+// Main page
 async function index(req, res){
     hit(req);
     try {
@@ -28,15 +29,14 @@ async function index(req, res){
         config.usertoken = req.cookies.usertoken;
         let promos = await db.getSpecialEvents();
         let events = await db.getLatestEvents();
-        //console.warn('Events', events);
         res.render('index.html', {config, promos, events, utils});
-        //res.render('index.html', {config, events, utils});
     } catch(ex) {
         console.error(new Date(), 'Server error', ex.message);
         return res.status(500).render('servererror.html', {config});
     }
 }
 
+// Login page
 async function login(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -45,19 +45,21 @@ async function login(req, res){
     res.render('login.html', {config});
 }
 
+// Register event
 async function register(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
     config.account   = req.cookies.account;
     config.usertoken = req.cookies.usertoken;
     if(!config.usertoken){
-        config.redirect = '/register';
-        res.redirect('/login');
-        return;
+    	config.redirect = '/register';
+    	res.redirect('/login');
+    	return;
     }
     res.render('event.html', {config});
 }
 
+// List events
 async function list(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -66,6 +68,7 @@ async function list(req, res){
     res.render('events.html', {config});
 }
 
+// Events I have created
 async function myEvents(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -76,6 +79,7 @@ async function myEvents(req, res){
     res.render('myevents.html', {config, events, promos, utils});
 }
 
+// Tickets I have minted
 async function myTickets(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -86,6 +90,7 @@ async function myTickets(req, res){
     res.render('mytickets.html', {config, events, promos, utils});
 }
 
+// View event where you can claim or verify a ticket
 async function event(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -94,24 +99,10 @@ async function event(req, res){
     config.eventid   = req.params.id;
     let event = await db.getEventById(config.eventid);
     let tickets = await db.getTicketsByEvent(config.eventid);
-    //console.warn(event);
     res.render('view.html', {config, event, tickets, utils});
 }
 
-async function mint(req, res){
-    hit(req);
-    config.theme     = req.cookies.theme || 'dark-mode';
-    config.account   = req.cookies.account;
-    config.usertoken = req.cookies.usertoken;
-    config.eventid   = req.params.id;
-    if(!config.usertoken){
-        config.redirect = '/mint/'+config.eventid;
-        res.redirect('/login');
-        return;
-    }
-    res.render('mint.html', {config});
-}
-
+// Verify attendance validating ticket is from account
 async function verify(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -123,6 +114,7 @@ async function verify(req, res){
     res.render('verify.html', {config, event, tickets, utils});
 }
 
+// Terms and conditions
 async function terms(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -131,6 +123,7 @@ async function terms(req, res){
     res.render('terms.html', {config});
 }
 
+// Privacy policy
 async function privacy(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -139,6 +132,7 @@ async function privacy(req, res){
     res.render('privacy.html', {config});
 }
 
+// Frequently asked questions
 async function faq(req, res){
     hit(req);
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -150,46 +144,39 @@ async function faq(req, res){
 
 //-- API
 
-async function apiTest(req, res){
-    hit(req);
-    res.end('OK');
-}
-
+// Register new user, updating user token for login
 async function apiNewUser(req, res){
     hit(req);
     let data = req.body;
     if(!data.account){
-        console.warn('No account');
-        return res.end(JSON.stringify({success:false, error:'User not found'}));
+        return res.end(JSON.stringify({success:false, error:'Account not provided'}));
     }
     // Check if user exists, if not, save to db
-    let user = await db.getAccountById(data.account);
-    //console.warn('User?', user);
-    if(!user){
-        console.warn('New');
-        let ok = await db.newAccount(data);
-    } else { 
-        console.warn('Renew');
-        let ok = await db.renewToken(data);
-    }
+	let user = await db.getAccountById(data.account);
+	if(!user){
+		let ok = await db.newAccount(data);
+	} else { 
+		let ok = await db.renewToken(data);
+	}
     res.end(JSON.stringify({success:true}));
 }
 
+// Gets user info by account id
 async function apiUser(req, res){
     hit(req)
     let account = req.cookies.account
     if(!account){ return res.end(JSON.stringify({error:'User id required'})) }
     let info = await db.getAccountById(account)
     if(!info){ return res.end(JSON.stringify({error:'User not found'})) }
-    res.end(JSON.stringify(info))
+	res.end(JSON.stringify(info))
 }
 
+// Uploads file to blockchain and servers
 async function apiUpload(req, res){
     hit(req);
     let data = req.body;
-    console.warn('Data', data);
     if(!req.files || !req.files.file || !req.files.file.name) { 
-        return res.status(500).send(JSON.stringify({error:'No files uploaded'})); 
+    	return res.status(500).send(JSON.stringify({error:'No files uploaded'})); 
     }
     let artwork = req.files.file;
     console.warn('File', artwork);
@@ -197,7 +184,7 @@ async function apiUpload(req, res){
     console.warn('Mime type:', artwork.mimetype)
     let validMime = ['image/jpg', 'image/jpeg', 'image/png'];
     if(validMime.indexOf(artwork.mimetype)<0){
-        return res.status(500).send(JSON.stringify({error:'Invalid image type, only jpg or png allowed'})); 
+    	return res.status(500).send(JSON.stringify({error:'Invalid image type, only jpg or png allowed'})); 
     }
     try {
         // Upload artwork
@@ -222,6 +209,7 @@ async function apiUpload(req, res){
     }
 }
 
+// Registers new event in database
 async function apiEvent(req, res){
     hit(req);
     let event = req.body;
@@ -230,42 +218,41 @@ async function apiEvent(req, res){
     try {
         let inf = db.newEvent(event);
         if(inf.error){
-            res.status(500).send(JSON.stringify({error:inf.error}));
+    		res.status(500).send(JSON.stringify({error:inf.error}));
         } else {
-            res.send(JSON.stringify({success:true}));
+        	res.send(JSON.stringify({success:true}));
         }
     } catch(ex) {
-        console.error('Error saving event')
-        console.error(ex)
-        res.status(500).send(JSON.stringify({error:ex.message}));
+    	console.error('Error saving event')
+    	console.error(ex)
+    	res.status(500).send(JSON.stringify({error:ex.message}));
     }
 }
 
+// Get token info from transaction id
 async function apiToken(req, res){
     hit(req);
     let tx = await api.getTransaction(req.params.tx)
     if(!tx){
-        return res.end(JSON.stringify({error:'Error getting token id'}));
+    	return res.end(JSON.stringify({error:'Error getting token id'}));
     }
     let tid = await api.getTokenId(tx, req.params.uri)
     if(!tid){
-        return res.end(JSON.stringify({error:'Token id not found'}));
+    	return res.end(JSON.stringify({error:'Token id not found'}));
     }
-    console.warn('TokenId:', tid)
     res.end(JSON.stringify({success:true, tokenid:tid}));
 }
 
+// Saves ticket info to database
 async function apiTicket(req, res){
-    hit(req)
-    console.warn('Saving ticket', req.body)
-    let info = await db.newTicket(req.body)
-    console.warn('Saved', info)
+	hit(req)
+	let info = await db.newTicket(req.body)
     res.end(JSON.stringify({success:true, result:info}));
 }
 
+// Verify tickets owned by user
 async function apiVerify(req, res){
     hit(req)
-    console.warn('Verifying tickets', req.body)
     let tixs = await db.getTicketsByUser(req.body.account, req.body.eventId)
     let unvf = await db.getUnverifiedByUser(req.body.account, req.body.eventId)
     if(tixs.error) {
@@ -278,68 +265,21 @@ async function apiVerify(req, res){
         return res.end(JSON.stringify({error:'All user tickets for this event have been verified'}));
     }
     let info = await db.verifyTickets(req.body.account, req.body.eventId)
-    console.warn('Verified', info)
     return res.end(JSON.stringify({success:true, result:info, tickets:tixs, verified:unvf}));
 }
 
+// Receive webhook responses
 async function apiWebhook(req, res){
     hit(req)
     console.warn('Webhook:', req.body)
 }
 
-/*
-async function apiClaim(req, res){
-    hit(req);
-    let account   = req.cookies.account;
-    let usertoken = req.cookies.usertoken;
-    let eventid   = req.params.id;
-    let redirect = '/claim/'+eventid;
-    if(!usertoken){
-        return res.status(500).send(JSON.stringify({error:'Please login with your wallet first', code:902, redirect:redirect}));
-    }
-    let user = await db.getAccountById(account)
-    let exp = new Date(user.expires)
-    let now = new Date()
-    if(exp<now){
-        return res.status(500).send(JSON.stringify({error:'Session expired, please login with your wallet first', code:904, redirect:redirect}));
-    }
-    let event = await db.getEventById(eventid)
-    if(event.error){
-        return res.status(500).send(JSON.stringify({error:'Error loading event, try again later', code:906}));
-    }
-    let uri = event.artwork
-    let inf = await api.claimNFT(uri, eventid, account, usertoken)
-    console.warn(inf)
-    if(inf.error){
-        return res.status(500).send(JSON.stringify({error:'Error claiming token, try again in a moment', code:908, redirect:redirect}));
-    }
-    res.send(JSON.stringify({success:true, tokenId:inf.tokenId}));
-}
-*/
-
+// API catch all 404
 async function apiNotfound(req, res){
     hit(req, 'not found');
-    res.status(404).end('{"error":"Resource not found"}'); // Catch all
+    res.status(404).end('{"error":"Resource not found"}');
 }
 
-
-
-//-- OAUTH
-/*
-app.get('/oauth/challenge', (req, res) => { 
-    hit(req);
-    let tkn = req.query.token
-    if(tkn){
-        let sha = oauth.challenge(tkn, process.env.XUMMKEY)
-        let inf = JSON.stringify({response_token:'sha256='+sha})
-        console.warn('oAuth token:', tkn, inf)
-        res.send(inf)
-        return
-    } else {
-        res.status(400).end('{"error":"Invalid request, token required"}')
-    }
-});
-*/
 
 
 //-- UTILS
@@ -356,6 +296,7 @@ async function logx(req, res){
     res.end('<body style="padding:20px;color:#AFA;background-color:#111;font-size:130%;"><pre>Logs cleared</pre></body>');
 }
 
+// Catch all 404
 async function notfound(req, res){
     hit(req, 'not found');
     config.theme     = req.cookies.theme || 'dark-mode';
@@ -366,29 +307,27 @@ async function notfound(req, res){
 
 
 module.exports = {
-    index,
-    login,
-    register,
-    list,
-    event,
+	index,
+	login,
+	register,
+	list,
+	event,
     myEvents,
     myTickets,
-    mint,
-    verify,
-    terms,
-    privacy,
-    faq,
-    apiTest,
-    apiUser,
-    apiNewUser,
-    apiUpload,
+	verify,
+	terms,
+	privacy,
+	faq,
+	apiUser,
+	apiNewUser,
+	apiUpload,
     apiEvent,
-    apiToken,
-    apiTicket,
-    apiVerify,
+	apiToken,
+	apiTicket,
+	apiVerify,
     apiWebhook,
-    apiNotfound,
-    logs,
-    logx,
-    notfound
+	apiNotfound,
+	logs,
+	logx,
+	notfound
 }
