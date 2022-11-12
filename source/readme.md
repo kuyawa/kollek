@@ -79,3 +79,12 @@ CREATE TABLE IF NOT EXISTS tickets (
     CONSTRAINT  tickets_pkey PRIMARY KEY (recid)
 )
 ```
+
+## File Storage
+
+KOLLEK uses ARWEAVE as our preferred blockchain for file storage due to it's simplicity and low cost, the best option over IPFS, FileCoin, etc
+
+In order to use ARWEAVE you will need an account. [Follow this steps](https://docs.arweave.org/info/wallets/generating-cold-wallet) to create your wallet, keep the generated key in a safe place
+
+Here is a sample file uploaded to ARWEAVE https://arweave.net/pyJtiuAhhZ_98zvAZj1Sk-9YYB7GgDVrtnPOto8-lbE
+
